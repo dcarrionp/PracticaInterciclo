@@ -1,14 +1,14 @@
-# Utilizar la imagen base de Debian
+# Usar una imagen base de Debian
 FROM debian:latest
 
-# Actualizar paquetes y preparar el sistema
+# Actualizar paquetes e instalar herramientas necesarias
 RUN apt-get update && apt-get install -y \
     apache2 \
     curl \
     gnupg \
     build-essential
 
-# Instalar Node.js (versión 16, ya que es estable para proyectos)
+# Instalar Node.js y npm
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs
 
@@ -18,23 +18,27 @@ RUN node -v && npm -v
 # Instalar Angular CLI globalmente
 RUN npm install -g @angular/cli
 
-# Copiar el código de la aplicación al contenedor
-COPY . /app
-
 # Establecer el directorio de trabajo
 WORKDIR /app
+
+# Copiar archivos necesarios para instalar dependencias
+COPY package*.json ./
 
 # Instalar dependencias
 RUN npm install
 
-# Compilar la aplicación Angular
+# Copiar el código de la aplicación Angular al contenedor
+COPY . .
+
+# Construir la aplicación Angular
 RUN ng build --configuration production
 
-# Configurar el servidor web para servir la aplicación Angular
-RUN cp -r /app/dist/* /var/www/html/
+# Configurar Apache para servir los archivos estáticos de Angular
+RUN rm -rf /var/www/html/* && \
+    cp -r /app/dist/angular-docker-app/* /var/www/html/
 
-# Exponer el puerto 80
+# Exponer el puerto 80 para servir la aplicación
 EXPOSE 80
 
-# Comando por defecto
+# Iniciar Apache en primer plano
 CMD ["apachectl", "-D", "FOREGROUND"]

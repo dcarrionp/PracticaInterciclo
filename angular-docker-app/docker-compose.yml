@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  angular-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80" # Mapear el puerto 80 del contenedor al 8080 de la máquina anfitriona
+    volumes:
+      - .:/app # Sincronizar el código local con el contenedor
+      - /app/node_modules # Excluir node_modules
+      - /app/dist:/var/www/html # Sincronizar archivos estáticos con Apache
+    command: >
+      sh -c "npm install &&
+             ng build --watch --configuration development &&
+             apachectl -D FOREGROUND"
