@@ -35,7 +35,7 @@ RUN ng build --configuration production
 
 # Configurar Apache para servir los archivos estáticos de Angular
 RUN rm -rf /var/www/html/* && \
-    cp -r /app/dist/angular-docker-app/* /var/www/html/
+    cp -r /app/dist/angular-docker-app/browser/* /var/www/html/
 
 # Exponer el puerto 80 para servir la aplicación
 EXPOSE 80
